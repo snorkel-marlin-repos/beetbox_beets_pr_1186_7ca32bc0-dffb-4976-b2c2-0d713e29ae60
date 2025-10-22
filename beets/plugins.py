@@ -450,11 +450,17 @@ def send(event, **arguments):
     Returns a list of return values from the handlers.
     """
     log.debug(u'Sending event: {0}', event)
+    return_values = []
     for handler in event_handlers()[event]:
         # Don't break legacy plugins if we want to pass more arguments
         argspec = inspect.getargspec(handler).args
         args = dict((k, v) for k, v in arguments.items() if k in argspec)
-        handler(**args)
+        result = handler(**args)
+        # Only append non None return values
+        if result:
+            return_values.append(result)
+
+    return return_values
 
 
 def feat_tokens(for_artist=True):
